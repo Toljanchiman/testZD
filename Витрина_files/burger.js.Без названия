@@ -1,0 +1,86 @@
+var menuList = getMenuList('menu.json');
+addMenu(menuList);
+
+/*получить json для вывода в меню*/
+function getMenuList(file) {
+    /*var AJAXmenuJSON = new XMLHttpRequest();
+    AJAXmenuJSON.open("GET", file, false);
+    AJAXmenuJSON.send(null);
+    return JSON.parse(AJAXmenuJSON.responseText);*/
+    return [
+        {
+            "label": "Витрина",
+            "href": "/showcase",
+            "items": []
+        },
+    {
+        "label": "О проекте",
+        "href": "/pages/about",
+        "items": []
+    },
+    {
+        "label": "Новости",
+        "href": "/news",
+        "items": []
+    },
+    /*{
+        "label": "Приобрести",
+        "href": "/showcase",
+        "items": []
+    },*/
+    {
+        "label": "Помощь",
+        "href": "/feedback",
+        "items": []
+    },
+    {
+        "label": "Скачать",
+        "href": "/pages/apps",
+        "items": []
+    }/*,
+    {
+        "label": "Поддержка",
+        "href": "/feedback",
+        "items": []
+    }*/
+    ];
+}
+
+/*вставить меню в документ на основе json*/
+function addMenu(menuList) {
+    document.write("<nav class='main-wrapper'>");
+    document.write("<a href='javascript:void(0)' class='menu-burger' onclick='return false;'>Меню<span></span></a>");
+    document.write("<ul class='menu-list'>");
+    for (var i = 0; i < menuList.length; i++) {
+        document.write("<li><a href='" + menuList[i].href + "'>" + menuList[i].label + "</a>");
+        if (menuList[i].items && menuList[i].items.length) {
+            addSubmenu(menuList[i].items);
+        }
+        document.write("</li>");
+    }
+    document.write("</ul>");
+    document.write("</nav>");
+
+
+    function addSubmenu(items) {
+        document.write("<ul>");
+        for (var i = 0; i < items.length; i++) {
+            document.write("<li><a href='" + items[i].href + "'>" + items[i].label + "</a>");
+            if (items[i].items && items[i].items.length) {
+                addSubmenu(items[i].items);
+            }
+        }
+        document.write("</ul>");
+    }
+}
+
+document.querySelector(".menu-burger").addEventListener("click", function (e) {
+    e.stopPropagation();
+    document.querySelector(".menu-list").classList.toggle("menu-list__show");
+});
+document.querySelector(".menu-list").addEventListener("click", function (e) {
+    e.stopPropagation();
+});
+document.addEventListener("click", function (e) {
+    document.querySelector(".menu-list").classList.remove("menu-list__show");
+});

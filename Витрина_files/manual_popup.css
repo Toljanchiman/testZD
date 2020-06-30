@@ -1,0 +1,112 @@
+.popup-manual {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 410px;
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    z-index: 20;
+    padding: 40px 15px 10px;
+    text-align: center;
+    border: 1px solid #989898;
+}
+
+    .popup-manual a {
+        text-decoration: none;
+    }
+
+.popup-manual h3  {
+          margin-top: -14px;
+          margin-bottom: 38px;
+     }
+
+.popup-manual .popup-close {
+    display: inline-block;
+    position: absolute;
+    top: 11px;
+    right: 11px;
+    font-size: 0;
+    background: none;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    cursor: pointer;
+}
+
+.popup-manual .popup-close::before {
+    position: absolute;
+    left: 0;
+    top: 9px;
+    content: "";
+    width: 100%;
+    height: 2px;
+    background: #444;
+    transform-origin: center;
+    transform: rotate(-45deg);
+}
+
+.popup-manual .popup-close::after {
+    position: absolute;
+    left: 0;
+    top: 9px;
+    content: "";
+    width: 100%;
+    height: 2px;
+    transform-origin: center;
+    background: #444;
+    transform: rotate(45deg);
+}
+
+.popup__show {
+    display: block;
+}
+
+.popup-manual-mask {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 15;
+}
+
+.popup-mask__show {
+    display: block;
+}
+
+.popup-item {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 20px 20px;
+    width: 150px;
+}
+
+.popup-item__img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-item__img_orange {
+    background-image: linear-gradient(to bottom, #f28e02, #e53629);
+}
+
+.popup-item__img_blue {
+    background-image: linear-gradient(to bottom, #3961e9, #2a2664);
+}
+
+.popup-item__text {
+    margin: 5px 0 0;
+    text-align: center;
+    font-size: 21px;
+    color: #3c3c3b;
+    font-family: inherit;
+}

@@ -1,0 +1,53 @@
+﻿function buildIframe(url) {
+    var el = document.createElement('iframe');
+    el.setAttribute('id', 'playerIframe');
+    el.setAttribute('width', '100%');
+    el.setAttribute('height', '100%');
+    el.setAttribute('frameborder', '0');
+    el.style.border = '0';
+    el.style.position = 'fixed';
+    el.style.zIndex = '100';
+    el.style.top = '0';
+    el.style.left = '0';
+    el.setAttribute('src', url);
+    document.body.appendChild(el);
+    document.body.style.overflow = 'hidden';
+}
+function buildUrl(pars, mode) {
+    var base = 'https://cdn.imumk.ru/'+mode+'.html';
+    var res = base;
+    var ix = 0;
+    for (var key in pars) {
+        if (ix === 0) res += '?'; else res += '&';
+        res += key + '=' + encodeURIComponent(pars[key]);
+        ix = 1;
+    }
+    return res;
+}
+function _try(id, title, mode) {
+    if (!mode) mode = 'anon';
+    const url = buildUrl({ courseID: id, courseTitle: title, courseExtId: '123456' }, mode);
+    buildIframe(url);
+    return false;
+}
+
+
+function closePlayer() {
+    document.body.style.overflow = 'auto';
+    var pl = document.getElementById('playerIframe');
+    if (pl) {
+        pl.parentNode.removeChild(pl);
+    }
+}
+
+window.addEventListener('message', function (m) {
+    console.log('received closing msg', m);
+    if (m.data.origin === 'player') { 
+        if (m.data.action === 'close') {
+            closePlayer();
+        } else if (m.data.action === 'purchase') {
+            //closePlayer();
+            window.location.href = 'https://www.imumk.ru/promo/QuickPurchaseByCourse?id=' + m.data.courseId + '&src=OZ';
+        }
+    }
+});

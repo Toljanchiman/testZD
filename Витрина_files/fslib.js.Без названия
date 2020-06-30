@@ -1,0 +1,27 @@
+﻿function alarmSkin(text_) {
+        // создаём сам скин для дивов
+        var alarmOb = document.createElement("div");
+        alarmOb.id = "alarmOb";
+        alarmOb.className = "login-modal-container";
+        var div1 = document.createElement("div");                 
+        div1.className = "login-modal js-modal";
+        var divheader = document.createElement("div");
+        divheader.className = "login-modal-header";
+        div1.appendChild(divheader);
+        var a = document.createElement("a");
+        a.className = "login-modal-header-close js-close-modal";
+        a.innerHTML = "X";
+        a.onclick = function () {
+            document.body.removeChild(document.getElementById('alarmOb'));
+        };
+        divheader.appendChild(a);
+
+        var a = document.createElement("div");
+        a.className = "login-modal-body";
+        a.innerHTML = "<h1 id='alarmMessage'>" + text_ + "</h1>";
+        a.style.textAlign = 'center';
+        a.style.marginTop = "110px";
+        div1.appendChild(a);
+        alarmOb.appendChild(div1);
+        document.body.appendChild(alarmOb);
+}

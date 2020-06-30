@@ -1,0 +1,821 @@
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var Basket = (function () {
+        var cartEl = document.querySelector('.header-cart');
+
+        var cartSpanEl;
+
+        if (cartEl) {
+            cartSpanEl = cartEl.querySelector('span');
+        }
+
+        var timeout;
+
+    function upscale () {
+      if (!cartSpanEl) return;
+
+      if (timeout) {
+        window.clearTimeout(timeout);
+        cartSpanEl.classList.remove('is-upscaled');
+      }
+
+      cartSpanEl.classList.add('is-upscaled');
+
+      timeout = window.setTimeout(function () {
+        cartSpanEl.classList.remove('is-upscaled');
+      }, 300);
+    }
+
+    function add (offerId) {
+      fetch('/shop/ajaxadd', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          id: offerId
+        })
+      })
+        .then(function (res) {
+          return res.json();
+        })
+
+        .then(function (data) {
+          if (!data) return;
+          if (data.error) return alert(data.error);
+          this.refill(data);
+          if (typeof upscale === 'function') upscale();
+        }.bind(this))
+
+        .catch(function (ex) {
+          console.log(ex);
+          if (typeof dec === 'function') dec();
+        });
+    }
+
+    function list () {
+      fetch('/shop/ajaxlist', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({})
+      })
+        .then(function (res) {
+          return res.json();
+        })
+
+        .then(function (data) {
+          if (!data) return;
+          if (data.error) return alert(data.error);
+          this.refill(data);
+        }.bind(this))
+
+        .catch(function (ex) {
+          console.log(ex);
+        });
+    }
+
+    function refill (data) {
+      if (!(data && cartSpanEl)) return;
+      cartSpanEl.innerHTML = String(data.length);
+
+      !!data.length
+        ? cartSpanEl.classList.remove('is-hidden')
+        : cartSpanEl.classList.add('is-hidden');
+    }
+
+    function getLength () {
+      return cartSpanEl != null ? Number(cartSpanEl.innerHTML) : 0;
+    }
+
+    function dec () {
+      var length;
+
+      if (getLength && refill && (length = Number(getLength()))) {
+        refill(Array(length - 1));
+      }
+    }
+
+    return {
+      add: add,
+      list: list,
+      refill: refill,
+      getLength: getLength
+    };
+    
+  })();
+
+  function purchaseOffer (e) {
+    e.preventDefault();
+    var offerId = this.dataset.offer;
+    var basketLength = Basket.getLength();
+    Basket.refill(Array(basketLength + 1));
+    Basket.add(offerId);
+    (new KCNotification('Курс успешно добавлен в корзину.')).show();
+  }
+
+  window.addToCart = function (offerId) {
+      var basketLength = Basket.getLength();
+      Basket.refill(Array(basketLength + 1));
+      Basket.add(offerId);
+      (new KCNotification('Курс успешно добавлен в корзину.')).show();
+      window.location.href = '/shop';
+  }
+
+  function openBasket (e) {
+    if (!Basket.getLength()) {
+      e.preventDefault();
+      (new KCNotification('Ваша корзина пуста.')).show();
+    }
+  }
+
+  Basket.list();
+
+  [].forEach.call(document.querySelectorAll('.js-purchase-offer'), function (el) {
+    el.addEventListener('click', purchaseOffer);
+  });
+
+  var _btnRef;
+
+  if ((_btnRef = document.querySelector('.js-open-basket')) != null) {
+    _btnRef.addEventListener('click', openBasket);
+  }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  var _btnRef;
+
+  if ((_btnRef = document.querySelector('.js-submit-form')) != null) {
+    var submitBtn = document.querySelector('input[type="submit"]');
+
+    _btnRef.addEventListener('click', function () {
+      if (typeof submitBtn.click === 'function') submitBtn.click();
+    });
+  }
+});
+
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _React = React;
+var Component = _React.Component;
+
+var KCRating = function (_Component) {
+  _inherits(KCRating, _Component);
+
+  function KCRating(props) {
+    _classCallCheck(this, KCRating);
+
+    var _this = _possibleConstructorReturn(this, (KCRating.__proto__ || Object.getPrototypeOf(KCRating)).call(this, props));
+
+    _this.state = {
+      index: 0,
+      itemWidth: 0
+    };
+    return _this;
+  }
+
+  _createClass(KCRating, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.getItemWidth();
+    }
+  }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {
+      this.getItemWidth();
+
+      if (this.props.mode !== nextProps.mode) {
+        this.setState({ index: 0 });
+      }
+    }
+  }, {
+    key: "getItemWidth",
+    value: function getItemWidth() {
+      var itemWidth = function () {
+        var itemEl = document.querySelector('.home-rating-list-item');
+        return Math.max(itemEl.offsetWidth, itemEl.scrollWidth);
+      }();
+
+      this.setState({ itemWidth: itemWidth });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return React.createElement(
+        "div",
+        { className: "home-rating" },
+        React.createElement(
+          "h3",
+          { className: "home-rating-title home-h3 u-text-center" },
+          "Наши отличники"
+        ),
+        this.insertUsers(),
+        this.insertPaddles()
+      );
+    }
+  }, {
+    key: "insertUsers",
+    value: function insertUsers() {
+      var _state = this.state;
+      var index = _state.index;
+      var itemWidth = _state.itemWidth;
+      var mode = this.props.mode;
+
+
+      var listStyle = {
+        left: "-" + Math.floor(index / mode) * itemWidth * mode + "px"
+      };
+
+      return React.createElement(
+        "div",
+        { className: "home-rating-list-wrapper" },
+        React.createElement(
+          "ul",
+          { className: "home-rating-list", style: listStyle },
+          topRatedUsers.map(function (user, i) {
+            return React.createElement(
+              "li",
+              { key: user.name, className: "home-rating-list-item" },
+              React.createElement(
+                "div",
+                { className: "avatar mod-sm" },
+                React.createElement(
+                  "div",
+                  { className: "avatar-figure" },
+                  React.createElement("img", { src: user.avatarUrl, alt: user.name })
+                ),
+                React.createElement(
+                  "div",
+                  { className: "avatar-score" },
+                  user.score
+                ),
+                React.createElement(
+                  "h2",
+                  { className: "avatar-name" },
+                  React.createElement(
+                    "a",
+                    { href: user.url },
+                    user.name
+                  )
+                )
+              )
+            );
+          })
+        )
+      );
+    }
+  }, {
+    key: "insertPaddles",
+    value: function insertPaddles() {
+      var index = this.state.index;
+      var _props = this.props;
+      var users = _props.users;
+      var mode = _props.mode;
+      var maxPage = _props.maxPage;
+
+      var currentPage = Math.floor(index / mode);
+
+      var leftClassName = 'home-rating-paddles-item mod-left';
+      if (index < mode) leftClassName += ' is-disabled';
+
+      var rightClassName = 'home-rating-paddles-item mod-right';
+      if (currentPage >= maxPage) rightClassName += ' is-disabled';
+
+      return React.createElement(
+        "ul",
+        { className: "home-rating-paddles" },
+        React.createElement("li", { className: leftClassName, onClick: this.prev.bind(this) }),
+        React.createElement("li", { className: rightClassName, onClick: this.next.bind(this) })
+      );
+    }
+  }, {
+    key: "prev",
+    value: function prev() {
+      var index = this.state.index;
+      var mode = this.props.mode;
+
+
+      if (index < mode) return;
+      index -= mode;
+      this.setState({ index: index });
+    }
+  }, {
+    key: "next",
+    value: function next() {
+      var index = this.state.index;
+      var _props2 = this.props;
+      var mode = _props2.mode;
+      var maxPage = _props2.maxPage;
+
+      var currentPage = Math.floor(index / mode);
+
+      if (currentPage >= maxPage) return;
+      index += mode;
+      this.setState({ index: index });
+    }
+  }]);
+
+  return KCRating;
+}(Component);
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof topRatedUsers === 'undefined' || topRatedUsers === null) return;
+  if (!Array.isArray(topRatedUsers)) return;
+
+  function renderRating(el) {
+    var width = window.innerWidth;
+
+    var mode = function () {
+      switch (false) {
+        case !(width >= 1024):
+          return 5;
+        case !(width >= 768):
+          return 3;
+        default:
+          return 1;
+      }
+    }();
+
+    var usersLength = topRatedUsers.length;
+    var maxPage = Math.floor(usersLength / mode);
+    if (!(usersLength % mode)) maxPage -= 1;
+
+    ReactDOM.render(React.createElement(KCRating, { users: topRatedUsers, mode: mode, maxPage: maxPage }), el);
+  }
+
+  var homeRatingEl = void 0;
+
+  if (homeRatingEl = document.querySelector('#home-rating')) {
+    var _ret = function () {
+      if (!KCRating) return {
+          v: void 0
+        };
+
+      var timeout = void 0;
+      var isResizing = false;
+
+      renderRating(homeRatingEl);
+
+      window.addEventListener('resize', function () {
+        if (!isResizing) {
+          window.requestAnimationFrame(function () {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(renderRating.bind(null, homeRatingEl), 50);
+            isResizing = false;
+          });
+        }
+
+        isResizing = true;
+      });
+    }();
+
+    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+  }
+});
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _React = React;
+var Component = _React.Component;
+
+var KCSlider = function (_Component) {
+  _inherits(KCSlider, _Component);
+
+  function KCSlider(props) {
+    _classCallCheck(this, KCSlider);
+
+    var _this = _possibleConstructorReturn(this, (KCSlider.__proto__ || Object.getPrototypeOf(KCSlider)).call(this, props));
+
+    _this.state = {
+      index: 0
+    };
+    return _this;
+  }
+
+  _createClass(KCSlider, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.interval = setInterval(this.next.bind(this), 5000);
+      this.dimmerEl = ReactDOM.findDOMNode(this.refs.dimmer);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var slide = this.props.slides[this.state.index];
+      var className = "slider-wrapper mod-" + slide.name;
+
+      return React.createElement(
+        "div",
+        { className: className },
+        React.createElement(
+          "div",
+          { className: "slider" },
+          this.insertSlides(),
+          this.insertPaddles(),
+          this.insertDots()
+        ),
+        React.createElement("div", { className: "slider-dimmer", ref: "dimmer" })
+      );
+    }
+  }, {
+    key: "insertSlides",
+    value: function insertSlides() {
+      var slide = this.props.slides[this.state.index];
+      var url = slide.url || '/';
+
+      return React.createElement(
+        "div",
+        { className: "slider-slides" },
+        React.createElement(
+          "div",
+          { className: "slider-slides-item" },
+          React.createElement("div", { className: "slider-slides-item-content" }),
+          React.createElement("a", { className: "slider-slides-item-link", href: url })
+        )
+      );
+    }
+  }, {
+    key: "insertPaddles",
+    value: function insertPaddles() {
+      return React.createElement(
+        "ul",
+        { className: "slider-paddles" },
+        React.createElement("li", { className: "slider-paddles-item mod-left", onClick: this.prev.bind(this) }),
+        React.createElement("li", { className: "slider-paddles-item mod-right", onClick: this.next.bind(this) })
+      );
+    }
+  }, {
+    key: "insertDots",
+    value: function insertDots() {
+      var _this2 = this;
+
+      return React.createElement(
+        "div",
+        { className: "slider-dots-wrapper" },
+        React.createElement(
+          "ul",
+          { className: "slider-dots" },
+          this.props.slides.map(function (slide, i) {
+            var className = 'slider-dots-item';
+            if (i === _this2.state.index) className += ' is-active';
+
+            return React.createElement("li", { key: slide.name,
+              className: className,
+              onClick: _this2.showSlideAt.bind(_this2, i) });
+          })
+        )
+      );
+    }
+  }, {
+    key: "prev",
+    value: function prev(event) {
+      var index = this.state.index;
+
+      index = index ? index - 1 : this.props.slides.length - 1;
+      this.showSlideAt(index, event);
+    }
+  }, {
+    key: "next",
+    value: function next(event) {
+      var index = this.state.index;
+
+      index = index + 1 === this.props.slides.length ? 0 : index + 1;
+      this.showSlideAt(index, event);
+    }
+  }, {
+    key: "showSlideAt",
+    value: function showSlideAt(index, event) {
+      if (index === this.state.index) return;
+      this._ci(event);
+
+      this.dimmerEl.classList.add('is-visible');
+      setTimeout(this.setIndex.bind(this, index), 300);
+    }
+  }, {
+    key: "setIndex",
+    value: function setIndex(index) {
+      var len = this.props.slides.length;
+
+      this.dimmerEl.classList.remove('is-visible');
+
+      if (index < 0) this.setState({ index: 0 });else if (index >= len) this.setState({ index: len - 1 });else this.setState({ index: index });
+    }
+  }, {
+    key: "_ci",
+    value: function _ci(event) {
+      if (typeof event !== 'undefined' && this.interval) {
+        clearInterval(this.interval);
+      }
+    }
+  }]);
+
+  return KCSlider;
+}(Component);
+'use strict';
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof homeSlides === 'undefined' || homeSlides === null) return;
+
+  var homeSliderEl = void 0;
+  var slides = Array.isArray(homeSlides) && homeSlides.slice();
+
+  if (homeSliderEl = document.querySelector('#home-slider')) {
+    if (!(slides && slides.length && KCSlider && window.innerWidth >= 568)) return;
+    ReactDOM.render(React.createElement(KCSlider, { slides: slides }), homeSliderEl);
+  }
+});
+
+(function () {
+  function getLogRegElements() {
+    var loginModal = document.querySelector('#login-modal');
+    var registrationModal = document.querySelector('#registration-modal');
+    var newpassModal = document.querySelector('#newpass-modal');
+
+    if (loginModal && registrationModal && newpassModal) {
+      processLogRegModals(loginModal, registrationModal, newpassModal);
+    }
+  }
+
+  function processLogRegModals(loginModal, registrationModal, newpassModal) {
+    var loginModalInner = loginModal.querySelector('.js-modal');
+    var loginModalCloseBtn = loginModal.querySelector('.js-close-modal');
+
+    var registrationModalInner = registrationModal.querySelector('.js-modal');
+    var registrationModalCloseBtn = registrationModal.querySelector('.js-close-modal');
+
+    var newpassModalInner = newpassModal.querySelector('.js-modal');
+    var newpassModalCloseBtn = newpassModal.querySelector('.js-close-modal');
+
+    var ModalTypes;
+
+    (function (_ref) {
+      _ref[_ref['login'] = 0] = 'login';
+      _ref[_ref['register'] = 1] = 'register';
+      _ref[_ref['newpass'] = 2] = 'newpass';
+    })(ModalTypes || (ModalTypes = {}));
+
+    var modals = [
+      loginModal,
+      registrationModal,
+      newpassModal
+    ];
+
+    if (typeof openDialogAtStartup !== 'undefined' && openDialogAtStartup !== null) {
+      if (openDialogAtStartup) {
+        var modal = modals[ModalTypes[openDialogAtStartup]] || modals[0];
+        modal.classList.toggle('is-hidden');
+        modal.querySelector('input').focus();
+      }
+    }
+
+    [loginModal, registrationModal, newpassModal].forEach(function (el) {
+      el.addEventListener('click', function () {
+          this.classList.toggle('is-hidden');
+          var nodes = document.querySelectorAll('.validation-summary-errors');
+          Array.prototype.forEach.call(nodes, function (node) {
+              node.parentNode.removeChild(node);
+          });
+          
+      });
+    });
+
+    [loginModalCloseBtn, registrationModalCloseBtn, newpassModalCloseBtn].forEach(function (el) {
+        el.addEventListener('click', function () {
+            //window.location.href = '/';
+        this.parentNode.parentNode.parentNode
+          .classList.toggle('is-hidden');
+        var nodes = document.querySelectorAll('.validation-summary-errors');
+        Array.prototype.forEach.call(nodes, function (node) {
+            node.parentNode.removeChild(node);
+        });
+
+      });
+    });
+
+    [loginModalInner, registrationModalInner, newpassModalInner].forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+    });
+
+    var _btnRef1, _btnRef2, _linkRef;
+
+    if ((_btnRef1 = document.querySelector('.js-open-registration-modal')) != null) {
+      _btnRef1.addEventListener('click', function () {
+        if (!registrationModal.classList.toggle('is-hidden')) {
+          registrationModal.querySelector('input').focus();
+        }
+      });
+    }
+
+    if ((_btnRef2 = document.querySelectorAll('.js-open-login-modal')) != null) {
+      var bodies = loginModalInner.querySelectorAll('.login-modal-body');
+
+      for (var j = 0; j < _btnRef2.length; ++j) {
+          var el1 = _btnRef2[j];
+          el1.addEventListener('click', function () {
+              if (!loginModal.classList.toggle('is-hidden')) {
+                  loginModal.querySelector('input').focus();
+              }
+
+              
+              for (var i = 0, len = bodies.length; i < len; i++) {
+                  var el = bodies[i];
+
+                  if (i === 0) {
+                      //if (!el.classList.contains('is-hidden')) break;
+                      el.classList.remove('is-hidden');
+                  } else {
+                      el.classList.add('is-hidden');
+                  }
+              }
+          });
+      }
+    }
+
+    if ((_linkRef = document.querySelector('.js-show-password-recovery-form')) != null) {
+      _linkRef.addEventListener('click', function () {
+          var bodies = loginModalInner.querySelectorAll('.login-modal-show1');
+
+        [].forEach.call(bodies, function (el) {
+          el.classList.toggle('is-hidden');
+        });
+      });
+      }
+
+      if ((_linkRef = document.querySelector('.js-show-activation-link-form')) != null) {
+          _linkRef.addEventListener('click', function () {
+              var bodies = loginModalInner.querySelectorAll('.login-modal-show2');
+
+              [].forEach.call(bodies, function (el) {
+                  el.classList.toggle('is-hidden');
+              });
+
+
+          });
+      }
+
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    getLogRegElements();
+  });
+
+}());
+
+
+
+(function () {
+  var container;
+  var message;
+  var notifications = {};
+  var hasOwnProp = {}.hasOwnProperty;
+
+  function createContainer () {
+    var ul = document.createElement('ul');
+    ul.className = 'notification-list';
+    return ul;
+  }
+
+  function createMessageNode (msg) {
+    var li = document.createElement('li');
+    var p = document.createElement('p');
+    li.className = 'notification-list-item';
+    p.innerText = msg || '';
+    li.appendChild(p);
+    return li;
+  }
+
+  function getMessageNode (msg) {
+    var node = (message != null ? message : void 0)
+      || (message = createMessageNode(msg));
+    var p = node.querySelector('p');
+    if (msg !== p.innerText) p.innerText = msg;
+    return node;
+  }
+
+  var KCNotification = window.KCNotification = (function () {
+    function KCNotification (msg) {
+      this.msg = msg;
+    }
+
+    KCNotification.prototype.show = function () {
+      for (var k in notifications) {
+        if (hasOwnProp.call(notifications, k)) {
+          var _n = notifications[k];
+          if (this.msg === _n.msg) return;
+        }
+      }
+
+      this.id = Date.now();
+      this.timeout = setTimeout(this.close.bind(this), 4000);
+      this.node = getMessageNode(this.msg).cloneNode(true);
+
+      if (!container) {
+        container = createContainer();
+        document.body.appendChild(container);
+      }
+
+      if (!container.childNodes.length) {
+        container.classList.remove('is-hidden');
+      }
+
+      container.insertBefore(this.node, container.childNodes[0]);
+      notifications[this.id] = this;
+      return this;
+    };
+
+    KCNotification.prototype.close = function () {
+      if (this.timeout) clearTimeout(this.timeout);
+      container.removeChild(this.node);
+      delete notifications[this.id];
+
+      if (!container.childNodes.length) {
+        container.classList.add('is-hidden');
+      }
+    };
+
+    return KCNotification;
+
+  }());
+
+}());
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  var width = window.innerWidth;
+  var scrollHeight = document.body.scrollHeight;
+  var isScrolling = false;
+  var breakpoint = 700;
+  var timeout;
+
+  if (!((width > 768) && scrollHeight > 1200)) return;
+
+  var scrollEl = createScrollElement('↑');
+  document.body.appendChild(scrollEl);
+
+  scrollEl.querySelector('.js-scroll-to-top').addEventListener('click', function () {
+    window.scrollTo(0, 0);
+  });
+
+  function createScrollElement (msg) {
+    if (msg == null) {
+      msg = 'Наверх';
+    }
+
+    var el = document.createElement('div');
+    var span = document.createElement('span');
+    el.className = 'scroll-to-top is-hidden';
+    span.className = 'scroll-to-top-link js-scroll-to-top';
+    span.setAttribute('title', 'Наверх');
+    span.innerText = msg;
+    el.appendChild(span);
+    return el;
+  }
+
+  function handleScroll () {
+    if (!scrollEl) return;
+    var methodName = (document.body.scrollTop >= breakpoint) ? 'remove' : 'add';
+    scrollEl.classList[methodName]('is-hidden');
+  }
+
+  document.addEventListener('scroll', function () {
+    if (!isScrolling) {
+      window.requestAnimationFrame(function () {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(handleScroll, 50);
+        isScrolling = false;
+      });
+    }
+
+    isScrolling = true;
+  });
+});

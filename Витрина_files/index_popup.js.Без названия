@@ -1,0 +1,38 @@
+(function() {
+    
+    var ESCKEY = 27;
+
+    var popup = document.querySelector('.popup-assign-teacher-student');
+    var popupCloseButton = document.querySelector('.popup-assign-teacher-student .popup-close');
+    var mask = document.querySelector('.popup-assign-teacher-student-mask');
+    var link = document.querySelector('.js-assign-popup-teacher-student');
+
+    var showPopup = function(evt) {
+        evt.preventDefault();
+        popup.classList.add('popup__show');
+        mask.classList.add('popup-mask__show');
+
+        mask.addEventListener('click', closePopup);
+        popupCloseButton.addEventListener('click', closePopup);
+        document.addEventListener('keydown', closePopupByEsc);
+    };
+    var closePopup = function(evt) {
+        evt.preventDefault();
+        popup.classList.remove('popup__show');
+        mask.classList.remove('popup-mask__show');
+        
+        mask.removeEventListener('click', closePopup);
+        popupCloseButton.removeEventListener('click', closePopup);
+        document.removeEventListener('keydown', closePopupByEsc);
+    };
+    var closePopupByEsc = function(evt) {
+        if(evt.keyCode === ESCKEY) {
+            closePopup(evt);
+        }
+    };
+
+    if (link) {
+        link.addEventListener('click', showPopup);
+    }
+
+})();
